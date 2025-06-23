@@ -22,12 +22,16 @@ class WeeklyForecast extends StatelessWidget {
       final existing = daily.indexWhere((d) => d['date'] == date);
 
       if (existing == -1) {
-        daily.add({'date': date, 'temp': f.tempCelsius});
+        daily.add({
+          'date': date,
+          'temp': f.tempCelsius,
+          'icon': f.iconCode,
+          'desc': f.description,
+        });
       }
       if (daily.length == 7) break;
     }
 
-    // Ensure today is always included
     final now = DateTime.now();
     final todayDate = DateTime(now.year, now.month, now.day);
 
@@ -38,22 +42,29 @@ class WeeklyForecast extends StatelessWidget {
             f.dateTime.year == todayDate.year &&
             f.dateTime.month == todayDate.month &&
             f.dateTime.day == todayDate.day,
-        orElse: () => forecastList[0], // fallback
+        orElse: () => forecastList[0],
       );
 
-      daily.insert(0, {'date': todayDate, 'temp': todayForecast.tempCelsius});
+      daily.insert(0, {
+        'date': todayDate,
+        'temp': todayForecast.tempCelsius,
+        'icon': todayForecast.iconCode,
+        'desc': todayForecast.description,
+      });
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SizedBox(
-        height: 130,
+        height: 170,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: daily.length,
           itemBuilder: (context, index) {
             final item = daily[index];
             final DateTime date = item['date'];
+            final String icon = item['icon'];
+            final String desc = item['desc'];
 
             final isToday =
                 date.day == now.day &&
@@ -62,11 +73,13 @@ class WeeklyForecast extends StatelessWidget {
 
             final label = isToday
                 ? 'Today'
-                : DateFormat.E().format(date); // Mon, Tue…
+                : DateFormat.E().format(date); // Mon, Tue...
+
+            final margin = EdgeInsets.only(left: index == 0 ? 16 : 8, right: 8);
 
             return Container(
               width: 80,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              margin: margin,
               decoration: BoxDecoration(
                 color: isToday ? Colors.white38 : Colors.white24,
                 borderRadius: BorderRadius.circular(12),
@@ -79,10 +92,21 @@ class WeeklyForecast extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(label, style: const TextStyle(color: Colors.white)),
-                  const SizedBox(height: 8),
+                  Image.network(
+                    'https://openweathermap.org/img/wn/$icon@2x.png',
+                    width: 40,
+                    height: 40,
+                  ),
+                  const SizedBox(height: 4),
                   Text(
                     '${item['temp'].toStringAsFixed(0)}°',
                     style: const TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    desc,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 10, color: Colors.white70),
                   ),
                 ],
               ),

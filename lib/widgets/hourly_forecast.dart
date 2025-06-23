@@ -31,6 +31,7 @@ class HourlyForecast extends StatelessWidget {
         'label': 'Now',
         'temp': currentForecast.tempCelsius,
         'desc': currentForecast.description,
+        'icon': currentForecast.iconCode,
         'isNow': true,
       },
       ...forecastList
@@ -40,6 +41,7 @@ class HourlyForecast extends StatelessWidget {
               'label': '${f.dateTime.hour.toString().padLeft(2, '0')}:00',
               'temp': f.tempCelsius,
               'desc': f.description,
+              'icon': f.iconCode,
               'isNow': false,
             },
           ),
@@ -48,7 +50,7 @@ class HourlyForecast extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SizedBox(
-        height: 130,
+        height: 150,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: modifiedForecastList.length,
@@ -57,11 +59,14 @@ class HourlyForecast extends StatelessWidget {
             final label = item['label'] as String;
             final temp = '${(item['temp'] as double).toStringAsFixed(0)}°';
             final desc = item['desc'] as String;
+            final icon = item['icon'] as String;
             final isNow = item['isNow'] as bool;
+
+            final margin = EdgeInsets.only(left: index == 0 ? 16 : 8, right: 8);
 
             return Container(
               width: 80,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              margin: margin,
               decoration: BoxDecoration(
                 color: isNow ? Colors.white38 : Colors.white24,
                 borderRadius: BorderRadius.circular(12),
@@ -80,12 +85,16 @@ class HourlyForecast extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  Image.network(
+                    'https://openweathermap.org/img/wn/$icon@2x.png',
+                    width: 40,
+                    height: 40,
+                  ),
                   Text(
                     temp,
                     style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     desc,
                     textAlign: TextAlign.center,

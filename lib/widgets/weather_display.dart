@@ -18,8 +18,12 @@ class WeatherDisplay extends StatelessWidget {
       );
     } else if (provider.weather != null) {
       final weather = provider.weather!;
+      final iconUrl =
+          'https://openweathermap.org/img/wn/${weather.iconCode}@4x.png';
+
       return Column(
         children: [
+          const SizedBox(height: 8),
           Text(
             weather.city,
             style: const TextStyle(
@@ -36,6 +40,13 @@ class WeatherDisplay extends StatelessWidget {
               fontWeight: FontWeight.w300,
               color: Colors.white,
             ),
+          ),
+          Image.network(
+            iconUrl,
+            width: 200,
+            height: 200,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.cloud_off, size: 60, color: Colors.white54),
           ),
           Text(
             weather.description,
