@@ -10,52 +10,92 @@ class HourlyForecast extends StatelessWidget {
     final provider = Provider.of<WeatherProvider>(context);
     final forecastList = provider.forecast;
 
-    if (forecastList == null || forecastList.isEmpty) {
-      return const SizedBox(); // ou CircularProgressIndicator
+    if (forecastList.isEmpty) {
+      return const SizedBox();
     }
 
-    return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: forecastList.length.clamp(
-          0,
-          10,
-        ), // só mostrar os 10 primeiros
-        itemBuilder: (context, index) {
-          final forecast = forecastList[index];
-          final time =
-              '${forecast.dateTime.hour.toString().padLeft(2, '0')}:00';
-          final temp = '${forecast.tempCelsius.toStringAsFixed(0)}°';
-          final desc = forecast.description;
+    final now = DateTime.now();
 
-          return Container(
-            width: 80,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(time, style: const TextStyle(color: Colors.white)),
-                const SizedBox(height: 8),
-                Text(
-                  temp,
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  desc,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10, color: Colors.white70),
-                ),
-              ],
-            ),
-          );
-        },
+    // Get the current forecast item based on the current time
+    final currentForecast = forecastList.firstWhere(
+      (f) =>
+          f.dateTime.hour == now.hour &&
+          f.dateTime.day == now.day &&
+          f.dateTime.month == now.month,
+      orElse: () => forecastList[0], // fallback
+    );
+
+    // Create a modified list with the current forecast at the start
+    final modifiedForecastList = [
+      {
+        'label': 'Now',
+        'temp': currentForecast.tempCelsius,
+        'desc': currentForecast.description,
+        'isNow': true,
+      },
+      ...forecastList
+          .take(9) // max 10 (atual + 9) items after the current time
+          .map(
+            (f) => {
+              'label': '${f.dateTime.hour.toString().padLeft(2, '0')}:00',
+              'temp': f.tempCelsius,
+              'desc': f.description,
+              'isNow': false,
+            },
+          ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SizedBox(
+        height: 130,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: modifiedForecastList.length,
+          itemBuilder: (context, index) {
+            final item = modifiedForecastList[index];
+            final label = item['label'] as String;
+            final temp = '${(item['temp'] as double).toStringAsFixed(0)}°';
+            final desc = item['desc'] as String;
+            final isNow = item['isNow'] as bool;
+
+            return Container(
+              width: 80,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: isNow ? Colors.white38 : Colors.white24,
+                borderRadius: BorderRadius.circular(12),
+                border: isNow
+                    ? Border.all(color: Colors.white, width: 1.5)
+                    : null,
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    temp,
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    desc,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 10, color: Colors.white70),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
