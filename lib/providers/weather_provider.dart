@@ -27,4 +27,6 @@ class WeatherProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  List<WeatherForecast> get forecast => _weather?.forecast ?? [];
 }

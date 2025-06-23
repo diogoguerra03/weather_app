@@ -1,18 +1,56 @@
 class Weather {
-  final double temp; // em Kelvin
+  final double temp; // Temperatura atual (em Kelvin)
   final String description;
   final String city;
+  final List<WeatherForecast> forecast;
 
-  Weather({required this.temp, required this.description, required this.city});
+  Weather({
+    required this.temp,
+    required this.description,
+    required this.city,
+    required this.forecast,
+  });
 
   factory Weather.fromJson(Map<String, dynamic> json) {
-    final firstItem = json['list'][0];
+    final list = json['list'] as List<dynamic>;
+    final cityName = json['city']['name'];
+
+    // Temperatura e descrição do primeiro item (atual)
+    final current = list.first;
+    final double currentTemp = current['main']['temp'];
+    final String currentDesc = current['weather'][0]['description'];
+
+    // Previsões futuras
+    final forecastList = list.map((item) {
+      return WeatherForecast(
+        dateTime: DateTime.parse(item['dt_txt']),
+        temp: item['main']['temp'],
+        description: item['weather'][0]['description'],
+      );
+    }).toList();
+
     return Weather(
-      temp: firstItem['main']['temp'],
-      description: firstItem['weather'][0]['description'],
-      city: json['city']['name'],
+      temp: currentTemp,
+      description: currentDesc,
+      city: cityName,
+      forecast: forecastList,
     );
   }
+
+  double get tempCelsius => temp - 273.15;
+  double get tempFahrenheit => tempCelsius * 9 / 5 + 32;
+}
+
+class WeatherForecast {
+  final DateTime dateTime;
+  final double temp; // em Kelvin
+  final String description;
+
+  WeatherForecast({
+    required this.dateTime,
+    required this.temp,
+    required this.description,
+  });
 
   double get tempCelsius => temp - 273.15;
   double get tempFahrenheit => tempCelsius * 9 / 5 + 32;
