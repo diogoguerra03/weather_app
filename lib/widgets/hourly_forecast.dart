@@ -7,39 +7,35 @@ class HourlyForecast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<WeatherProvider>(context);
-    final forecastList = provider.forecast;
-
-    if (forecastList.isEmpty) {
-      return const SizedBox();
-    }
+    final prov = Provider.of<WeatherProvider>(context);
+    final list = prov.forecast;
+    if (list.isEmpty) return const SizedBox();
 
     final now = DateTime.now();
-
-    // Get the current forecast item based on the current time
-    final currentForecast = forecastList.firstWhere(
+    final current = list.firstWhere(
       (f) =>
           f.dateTime.hour == now.hour &&
           f.dateTime.day == now.day &&
           f.dateTime.month == now.month,
-      orElse: () => forecastList[0], // fallback
+      orElse: () => list[0],
     );
 
-    // Create a modified list with the current forecast at the start
-    final modifiedForecastList = [
+    final modified = <Map<String, Object>>[
       {
         'label': 'Now',
-        'temp': currentForecast.tempCelsius,
-        'desc': currentForecast.description,
-        'icon': currentForecast.iconCode,
+        'temp': prov.useFahrenheit
+            ? current.tempFahrenheit
+            : current.tempCelsius,
+        'desc': current.description,
+        'icon': current.iconCode,
         'isNow': true,
       },
-      ...forecastList
-          .take(9) // max 10 (atual + 9) items after the current time
+      ...list
+          .take(9)
           .map(
             (f) => {
               'label': '${f.dateTime.hour.toString().padLeft(2, '0')}:00',
-              'temp': f.tempCelsius,
+              'temp': prov.useFahrenheit ? f.tempFahrenheit : f.tempCelsius,
               'desc': f.description,
               'icon': f.iconCode,
               'isNow': false,
@@ -53,16 +49,16 @@ class HourlyForecast extends StatelessWidget {
         height: 150,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: modifiedForecastList.length,
-          itemBuilder: (context, index) {
-            final item = modifiedForecastList[index];
+          itemCount: modified.length,
+          itemBuilder: (context, i) {
+            final item = modified[i];
             final label = item['label'] as String;
-            final temp = '${(item['temp'] as double).toStringAsFixed(0)}°';
             final desc = item['desc'] as String;
             final icon = item['icon'] as String;
+            final temp = (item['temp'] as double).toStringAsFixed(0);
             final isNow = item['isNow'] as bool;
 
-            final margin = EdgeInsets.only(left: index == 0 ? 16 : 8, right: 8);
+            final margin = EdgeInsets.only(left: i == 0 ? 16 : 8, right: 8);
 
             return Container(
               width: 80,
@@ -91,7 +87,7 @@ class HourlyForecast extends StatelessWidget {
                     height: 40,
                   ),
                   Text(
-                    temp,
+                    '$temp°',
                     style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
                   const SizedBox(height: 2),

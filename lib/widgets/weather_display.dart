@@ -7,49 +7,45 @@ class WeatherDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<WeatherProvider>(context);
+    final prov = Provider.of<WeatherProvider>(context);
 
-    if (provider.isLoading) {
+    if (prov.isLoading) {
       return const CircularProgressIndicator(color: Colors.white);
-    } else if (provider.error != null) {
+    } else if (prov.error != null) {
       return Text(
-        'Erro: ${provider.error}',
+        'Erro: ${prov.error}',
         style: const TextStyle(color: Colors.white),
       );
-    } else if (provider.weather != null) {
-      final weather = provider.weather!;
-      final iconUrl =
-          'https://openweathermap.org/img/wn/${weather.iconCode}@4x.png';
+    } else if (prov.weather != null) {
+      final w = prov.weather!;
+      final temp = prov.useFahrenheit
+          ? w.tempFahrenheit.toStringAsFixed(0)
+          : w.tempCelsius.toStringAsFixed(0);
+      final iconUrl = 'https://openweathermap.org/img/wn/${w.iconCode}@4x.png';
 
       return Column(
         children: [
           const SizedBox(height: 8),
           Text(
-            weather.city,
+            w.city,
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            '${weather.tempCelsius.toStringAsFixed(0)}°',
+            '$temp°',
             style: const TextStyle(
               fontSize: 60,
               fontWeight: FontWeight.w300,
               color: Colors.white,
             ),
           ),
-          Image.network(
-            iconUrl,
-            width: 200,
-            height: 200,
-            errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.cloud_off, size: 60, color: Colors.white54),
-          ),
+          Image.network(iconUrl, width: 200, height: 200),
           Text(
-            weather.description,
+            w.description,
             style: const TextStyle(
               fontSize: 18,
               fontStyle: FontStyle.italic,
