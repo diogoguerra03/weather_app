@@ -4,19 +4,19 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/weather.dart';
 
 class WeatherService {
-  static const String _baseUrl =
-      'https://api.openweathermap.org/data/2.5/forecast';
+  final _base = 'https://api.openweathermap.org/data/2.5/forecast';
+  final _key = dotenv.env['WEATHER_API_KEY'];
 
-  Future<Weather> fetchWeather(int cityId) async {
-    final apiKey = dotenv.env['WEATHER_API_KEY'];
-    final url = Uri.parse('$_baseUrl?id=$cityId&APPID=$apiKey');
+  Future<Weather> fetchWeatherByCityId(int cityId) =>
+      _fetch('$_base?id=$cityId&appid=$_key');
 
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return Weather.fromJson(data);
-    } else {
-      throw Exception('Error fetching weather data: ${response.statusCode}');
-    }
+  Future<Weather> fetchWeatherByCoords(double lat, double lon) =>
+      _fetch('$_base?lat=$lat&lon=$lon&appid=$_key');
+
+  Future<Weather> _fetch(String url) async {
+    final res = await http.get(Uri.parse(url));
+    if (res.statusCode != 200) throw Exception('Error getting weather');
+    final json = jsonDecode(res.body) as Map<String, dynamic>;
+    return Weather.fromJson(json);
   }
 }

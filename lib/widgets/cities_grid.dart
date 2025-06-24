@@ -38,7 +38,8 @@ class CitiesGrid extends StatelessWidget {
               context.read<WeatherProvider>().loadWeather(cw.city.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Row(
+                  content: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Icon(Icons.location_city, color: Colors.white),
                       const SizedBox(width: 8),

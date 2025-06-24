@@ -48,7 +48,7 @@ class WeatherProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _weather = await _weatherService.fetchWeather(cityId);
+      _weather = await _weatherService.fetchWeatherByCityId(cityId);
     } catch (e) {
       _error = e.toString();
     } finally {

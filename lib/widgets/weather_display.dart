@@ -44,14 +44,6 @@ class WeatherDisplay extends StatelessWidget {
             ),
           ),
           Image.network(iconUrl, width: 200, height: 200),
-          Text(
-            w.description,
-            style: const TextStyle(
-              fontSize: 18,
-              fontStyle: FontStyle.italic,
-              color: Colors.white70,
-            ),
-          ),
         ],
       );
     } else {

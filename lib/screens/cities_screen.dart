@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../services/weather_service.dart';
 import '../models/city.dart';
 import '../models/city_weather.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/cities_grid.dart';
+import '../utils/city_location_helper.dart';
 
 class CitiesScreen extends StatefulWidget {
   const CitiesScreen({super.key});
@@ -16,7 +18,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
   final WeatherService _service = WeatherService();
 
   // Default cities to show on the screen
-  final List<City> _defaults = const [
+  final List<City> _cities = [
     City(id: 2267056, name: 'Lisboa'),
     City(id: 2267094, name: 'Leiria'),
     City(id: 2740636, name: 'Coimbra'),
@@ -31,8 +33,8 @@ class _CitiesScreenState extends State<CitiesScreen> {
   void initState() {
     super.initState();
     _weathersFuture = Future.wait(
-      _defaults.map((city) async {
-        final w = await _service.fetchWeather(city.id);
+      _cities.map((city) async {
+        final w = await _service.fetchWeatherByCityId(city.id);
         return CityWeather(city: city, weather: w);
       }),
     );
@@ -48,7 +50,26 @@ class _CitiesScreenState extends State<CitiesScreen> {
         CustomSearchBar(
           hint: 'Find city...',
           onChanged: (q) => setState(() => _filter = q.toLowerCase()),
-          onSearch: () {},
+          onSearch: () async {
+            await addCurrentLocationCity(
+              context: context,
+              cities: _cities,
+              service: _service,
+              setState: setState,
+              updateWeathers: (future) {
+                setState(() {
+                  _weathersFuture = Future.wait(
+                    _cities.map(
+                      (c) async => CityWeather(
+                        city: c,
+                        weather: await _service.fetchWeatherByCityId(c.id),
+                      ),
+                    ),
+                  );
+                });
+              },
+            );
+          },
         ),
         const SizedBox(height: 16),
 

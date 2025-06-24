@@ -21,10 +21,9 @@ class WeatherScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-
               // Toggle de unidades
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -39,11 +38,10 @@ class WeatherScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 4),
               const ClockWidget(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 4),
               const WeatherDisplay(),
-              const SizedBox(height: 20),
               const PreferredSize(
                 preferredSize: Size.fromHeight(36),
                 child: TabBar(

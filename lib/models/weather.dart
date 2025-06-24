@@ -1,4 +1,5 @@
 class Weather {
+  final int cityId;
   final double temp; // Temperatura atual (em Kelvin)
   final String description;
   final String city;
@@ -6,6 +7,7 @@ class Weather {
   final List<WeatherForecast> forecast;
 
   Weather({
+    required this.cityId,
     required this.temp,
     required this.description,
     required this.city,
@@ -15,7 +17,11 @@ class Weather {
 
   factory Weather.fromJson(Map<String, dynamic> json) {
     final list = json['list'] as List<dynamic>;
-    final cityName = json['city']['name'];
+    final cityJson = json['city'] as Map<String, dynamic>;
+
+    // Extrai o id e o nome
+    final int id = cityJson['id'] as int;
+    final String name = cityJson['name'] as String;
 
     // Temperatura e descrição do primeiro item (atual)
     final current = list.first;
@@ -34,9 +40,10 @@ class Weather {
     }).toList();
 
     return Weather(
+      cityId: id,
+      city: name,
       temp: currentTemp,
       description: currentDesc,
-      city: cityName,
       iconCode: currentIcon,
       forecast: forecastList,
     );
