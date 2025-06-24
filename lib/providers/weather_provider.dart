@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/preferences.dart';
 import '../models/weather.dart';
 import '../services/weather_service.dart';
 
@@ -18,17 +18,15 @@ class WeatherProvider with ChangeNotifier {
     _loadUnitPreference();
   }
 
-  // Load the unit preference from SharedPreferences
+  // Load the unit preference from Preferences
   Future<void> _loadUnitPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    _useFahrenheit = prefs.getBool('useFahrenheit') ?? false;
+    _useFahrenheit = await Preferences.getUseFahrenheit();
     notifyListeners();
   }
 
-  // Save the unit preference to SharedPreferences
+  // Save the unit preference to Preferences
   Future<void> _saveUnitPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('useFahrenheit', _useFahrenheit);
+    await Preferences.setUseFahrenheit(_useFahrenheit);
   }
 
   // Toggle the unit between Celsius and Fahrenheit

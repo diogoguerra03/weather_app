@@ -7,20 +7,24 @@ import 'screens/weather_screen.dart';
 import 'screens/cities_screen.dart';
 import 'widgets/bottom_nav.dart';
 
+import 'utils/preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  final defaultId = await Preferences.getDefaultCity() ?? 2267094;
+
+  runApp(MyApp(defaultId: defaultId));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  static const int cityId = 2267094; // Leiria
+  final int defaultId;
+  const MyApp({super.key, required this.defaultId});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => WeatherProvider()..loadWeather(cityId),
+      create: (_) => WeatherProvider()..loadWeather(defaultId),
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: _Root(),

@@ -64,7 +64,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
               if (snap.hasError) {
                 return Center(
                   child: Text(
-                    'Erro: ${snap.error}',
+                    'Error: ${snap.error}',
                     style: const TextStyle(color: Colors.white),
                   ),
                 );
