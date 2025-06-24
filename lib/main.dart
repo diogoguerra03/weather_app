@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/weather_provider.dart';
 import 'screens/weather_screen.dart';
+import 'screens/cities_screen.dart';
+import 'widgets/bottom_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,9 +21,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => WeatherProvider()..loadWeather(cityId),
-      child: MaterialApp(
+      child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: const WeatherScreen(),
+        home: _Root(),
+      ),
+    );
+  }
+}
+
+class _Root extends StatefulWidget {
+  const _Root({super.key});
+  @override
+  State<_Root> createState() => _RootState();
+}
+
+class _RootState extends State<_Root> {
+  int _selectedIndex = 0;
+
+  static const _pages = [WeatherScreen(), CitiesScreen()];
+
+  void _onNavTap(int idx) {
+    setState(() {
+      _selectedIndex = idx;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF362A84),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNav(
+        currentIndex: _selectedIndex,
+        onTap: _onNavTap,
       ),
     );
   }

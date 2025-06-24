@@ -43,7 +43,7 @@ class WeatherScreen extends StatelessWidget {
               const ClockWidget(),
               const SizedBox(height: 40),
               const WeatherDisplay(),
-              const SizedBox(height: 100),
+              const SizedBox(height: 20),
               const PreferredSize(
                 preferredSize: Size.fromHeight(36),
                 child: TabBar(
