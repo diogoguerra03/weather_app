@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import '../services/weather_service.dart';
 import '../models/city.dart';
 import '../models/city_weather.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/cities_grid.dart';
 import '../utils/city_location_helper.dart';
+import '../utils/city_storage.dart';
 
 class CitiesScreen extends StatefulWidget {
   const CitiesScreen({super.key});
@@ -26,18 +26,31 @@ class _CitiesScreenState extends State<CitiesScreen> {
     City(id: 2268337, name: 'Faro'),
   ];
 
-  late Future<List<CityWeather>> _weathersFuture;
+  late Future<List<CityWeather>> _weathersFuture = Future.value([]);
   String _filter = '';
 
   @override
   void initState() {
     super.initState();
-    _weathersFuture = Future.wait(
-      _cities.map((city) async {
-        final w = await _service.fetchWeatherByCityId(city.id);
-        return CityWeather(city: city, weather: w);
-      }),
-    );
+    _loadCities();
+  }
+
+  Future<void> _loadCities() async {
+    final loaded = await CityStorage.loadCities();
+    if (loaded.isNotEmpty) {
+      setState(() {
+        _cities.clear();
+        _cities.addAll(loaded);
+      });
+    }
+    setState(() {
+      _weathersFuture = Future.wait(
+        _cities.map((city) async {
+          final w = await _service.fetchWeatherByCityId(city.id);
+          return CityWeather(city: city, weather: w);
+        }),
+      );
+    });
   }
 
   @override
@@ -67,6 +80,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
                     ),
                   );
                 });
+                CityStorage.saveCities(_cities);
               },
             );
           },
