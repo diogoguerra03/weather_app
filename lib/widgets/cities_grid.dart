@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 import '../models/city_weather.dart';
 import '../providers/weather_provider.dart';
 import '../utils/preferences.dart';
+import '../utils/city_storage.dart';
 
 class CitiesGrid extends StatelessWidget {
   final List<CityWeather> cityWeathers;
-  const CitiesGrid({super.key, required this.cityWeathers});
+  final void Function(CityWeather cityWeather)? onRemoveCity;
+  const CitiesGrid({super.key, required this.cityWeathers, this.onRemoveCity});
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,38 @@ class CitiesGrid extends StatelessWidget {
                   backgroundColor: Colors.green,
                 ),
               );
+            }
+          },
+          onLongPress: () async {
+            const defaultNames = [
+              'Lisboa',
+              'Leiria',
+              'Coimbra',
+              'Porto',
+              'Faro',
+            ];
+            if (defaultNames.contains(cw.city.name)) return;
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Remove city'),
+                content: Text(
+                  'Are you sure you want to delete "${cw.city.name}"?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Yes'),
+                  ),
+                ],
+              ),
+            );
+            if (confirmed == true && onRemoveCity != null) {
+              onRemoveCity!(cw);
             }
           },
           child: Container(

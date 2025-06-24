@@ -110,7 +110,33 @@ class _CitiesScreenState extends State<CitiesScreen> {
                   .where((cw) => cw.city.name.toLowerCase().contains(_filter))
                   .toList();
 
-              return CitiesGrid(cityWeathers: filtered);
+              return CitiesGrid(
+                cityWeathers: filtered,
+                onRemoveCity: (cityWeather) async {
+                  setState(() {
+                    _cities.removeWhere((c) => c.id == cityWeather.city.id);
+                    _weathersFuture = Future.wait(
+                      _cities.map(
+                        (c) async => CityWeather(
+                          city: c,
+                          weather: await _service.fetchWeatherByCityId(c.id),
+                        ),
+                      ),
+                    );
+                  });
+                  await CityStorage.saveCities(_cities);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'City "${cityWeather.city.name}" removed.',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              );
             },
           ),
         ),
