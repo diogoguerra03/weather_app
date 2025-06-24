@@ -6,6 +6,7 @@ import '../widgets/search_bar.dart';
 import '../widgets/cities_grid.dart';
 import '../utils/city_location_helper.dart';
 import '../utils/city_storage.dart';
+import '../widgets/add_city_bottom_sheet.dart';
 
 class CitiesScreen extends StatefulWidget {
   const CitiesScreen({super.key});
@@ -55,66 +56,118 @@ class _CitiesScreenState extends State<CitiesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        const SizedBox(height: 50),
-
-        // SearchBar that filters the cities
-        CustomSearchBar(
-          hint: 'Find city...',
-          onChanged: (q) => setState(() => _filter = q.toLowerCase()),
-          onSearch: () async {
-            await addCurrentLocationCity(
-              context: context,
-              cities: _cities,
-              service: _service,
-              setState: setState,
-              updateWeathers: (future) {
-                setState(() {
-                  _weathersFuture = Future.wait(
-                    _cities.map(
-                      (c) async => CityWeather(
-                        city: c,
-                        weather: await _service.fetchWeatherByCityId(c.id),
-                      ),
-                    ),
-                  );
-                });
-                CityStorage.saveCities(_cities);
+        Column(
+          children: [
+            const SizedBox(height: 50),
+            // SearchBar that filters the cities
+            CustomSearchBar(
+              hint: 'Find city...',
+              onChanged: (q) => setState(() => _filter = q.toLowerCase()),
+              onSearch: () async {
+                await addCurrentLocationCity(
+                  context: context,
+                  cities: _cities,
+                  service: _service,
+                  setState: setState,
+                  updateWeathers: (future) {
+                    setState(() {
+                      _weathersFuture = Future.wait(
+                        _cities.map(
+                          (c) async => CityWeather(
+                            city: c,
+                            weather: await _service.fetchWeatherByCityId(c.id),
+                          ),
+                        ),
+                      );
+                    });
+                    CityStorage.saveCities(_cities);
+                  },
+                );
               },
-            );
-          },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: FutureBuilder<List<CityWeather>>(
+                future: _weathersFuture,
+                builder: (ctx, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
+                  }
+                  if (snap.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: {snap.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  final filtered = snap.data!
+                      .where(
+                        (cw) => cw.city.name.toLowerCase().contains(_filter),
+                      )
+                      .toList();
+                  return CitiesGrid(
+                    cityWeathers: filtered,
+                    onRemoveCity: (cityWeather) async {
+                      setState(() {
+                        _cities.removeWhere((c) => c.id == cityWeather.city.id);
+                        _weathersFuture = Future.wait(
+                          _cities.map(
+                            (c) async => CityWeather(
+                              city: c,
+                              weather: await _service.fetchWeatherByCityId(
+                                c.id,
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                      await CityStorage.saveCities(_cities);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'City "${cityWeather.city.name}" removed.',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-
-        Expanded(
-          child: FutureBuilder<List<CityWeather>>(
-            future: _weathersFuture,
-            builder: (ctx, snap) {
-              if (snap.connectionState != ConnectionState.done) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                );
-              }
-              if (snap.hasError) {
-                return Center(
-                  child: Text(
-                    'Error: ${snap.error}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-              }
-
-              // filter the list based on the search query
-              final filtered = snap.data!
-                  .where((cw) => cw.city.name.toLowerCase().contains(_filter))
-                  .toList();
-
-              return CitiesGrid(
-                cityWeathers: filtered,
-                onRemoveCity: (cityWeather) async {
+        Positioned(
+          bottom: 24,
+          right: 24,
+          child: FloatingActionButton(
+            backgroundColor: const Color(0xFFE0E7FF), // cor mais clara
+            child: const Icon(
+              Icons.add,
+              color: Color(0xFF362A84),
+            ), // ícone escuro para contraste
+            onPressed: () async {
+              final city = await showModalBottomSheet<City>(
+                context: context,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                builder: (ctx) => AddCityBottomSheet(
+                  existingCities: List<City>.from(_cities),
+                ),
+              );
+              if (city != null && city.name.trim().isNotEmpty) {
+                if (!_cities.any((c) => c.id == city.id)) {
                   setState(() {
-                    _cities.removeWhere((c) => c.id == cityWeather.city.id);
+                    _cities.add(city);
                     _weathersFuture = Future.wait(
                       _cities.map(
                         (c) async => CityWeather(
@@ -128,15 +181,24 @@ class _CitiesScreenState extends State<CitiesScreen> {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          'City "${cityWeather.city.name}" removed.',
-                        ),
-                        backgroundColor: Colors.red,
+                        content: Text('City "${city.name}" added.'),
+                        backgroundColor: Colors.green,
                       ),
                     );
                   }
-                },
-              );
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'City "${city.name}" is already in the list.',
+                        ),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                }
+              }
             },
           ),
         ),

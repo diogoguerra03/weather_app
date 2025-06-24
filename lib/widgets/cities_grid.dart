@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/city_weather.dart';
 import '../providers/weather_provider.dart';
 import '../utils/preferences.dart';
-import '../utils/city_storage.dart';
 
 class CitiesGrid extends StatelessWidget {
   final List<CityWeather> cityWeathers;
