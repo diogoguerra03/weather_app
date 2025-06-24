@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
 }
 
 class _Root extends StatefulWidget {
-  const _Root({super.key});
+  const _Root();
   @override
   State<_Root> createState() => _RootState();
 }
@@ -50,7 +50,10 @@ class _RootState extends State<_Root> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF362A84),
-      body: _pages[_selectedIndex],
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: _pages[_selectedIndex],
+      ),
       bottomNavigationBar: BottomNav(
         currentIndex: _selectedIndex,
         onTap: _onNavTap,
