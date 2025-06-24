@@ -19,7 +19,7 @@ class Weather {
 
     // Temperatura e descrição do primeiro item (atual)
     final current = list.first;
-    final double currentTemp = current['main']['temp'];
+    final double currentTemp = (current['main']['temp'] as num).toDouble();
     final String currentDesc = current['weather'][0]['description'];
     final String currentIcon = current['weather'][0]['icon'];
 
@@ -27,7 +27,7 @@ class Weather {
     final forecastList = list.map((item) {
       return WeatherForecast(
         dateTime: DateTime.parse(item['dt_txt']),
-        temp: item['main']['temp'],
+        temp: (item['main']['temp'] as num).toDouble(),
         description: item['weather'][0]['description'],
         iconCode: item['weather'][0]['icon'],
       );
@@ -54,10 +54,10 @@ class WeatherForecast {
 
   WeatherForecast({
     required this.dateTime,
-    required this.temp,
+    required num temp,
     required this.description,
     required this.iconCode,
-  });
+  }) : temp = temp.toDouble();
 
   double get tempCelsius => temp - 273.15;
   double get tempFahrenheit => tempCelsius * 9 / 5 + 32;
