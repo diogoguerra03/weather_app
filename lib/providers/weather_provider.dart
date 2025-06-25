@@ -36,6 +36,13 @@ class WeatherProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Set the unit directly
+  void setUnit(bool fahrenheit) {
+    _useFahrenheit = fahrenheit;
+    _saveUnitPreference();
+    notifyListeners();
+  }
+
   Weather? get weather => _weather;
   bool get isLoading => _isLoading;
   String? get error => _error;

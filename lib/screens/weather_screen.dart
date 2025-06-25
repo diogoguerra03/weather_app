@@ -5,6 +5,7 @@ import '../widgets/clock_widget.dart';
 import '../widgets/weather_display.dart';
 import '../widgets/hourly_forecast.dart';
 import '../widgets/weekly_forecast.dart';
+import 'settings_screen.dart';
 
 class WeatherScreen extends StatelessWidget {
   const WeatherScreen({super.key});
@@ -27,14 +28,16 @@ class WeatherScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Text('°C', style: TextStyle(color: Colors.white)),
-                    Switch(
-                      value: prov.useFahrenheit,
-                      onChanged: (_) => prov.toggleUnit(),
-                      activeColor: Colors.white,
-                      inactiveTrackColor: Colors.white24,
+                    IconButton(
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => const SettingsScreen(),
+                          ),
+                        );
+                      },
                     ),
-                    const Text('°F', style: TextStyle(color: Colors.white)),
                   ],
                 ),
               ),
