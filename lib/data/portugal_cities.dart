@@ -17,7 +17,6 @@ const portugalCities = [
   City(id: 2267057, name: 'Santarém'), // Santarém
   City(id: 2737599, name: 'Setúbal'), // Setúbal
   City(id: 2733757, name: 'Vila Real'), // Vila Real
-  City(id: 2735943, name: 'Braga'), // Braga
   City(id: 2732265, name: 'Viseu'), // Viseu
   City(id: 2268339, name: 'Beja'), // Beja
   City(id: 2269582, name: 'Évora'), // Évora
