@@ -6,13 +6,12 @@ import 'providers/weather_provider.dart';
 import 'screens/weather_screen.dart';
 import 'screens/cities_screen.dart';
 import 'widgets/bottom_nav.dart';
-
-import 'utils/preferences.dart';
+import 'utils/startup_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  final defaultId = await Preferences.getDefaultCity() ?? 2267094;
+  final defaultId = await StartupHelper.getStartupCityId();
 
   runApp(MyApp(defaultId: defaultId));
 }

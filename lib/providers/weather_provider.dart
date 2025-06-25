@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/preferences.dart';
 import '../models/weather.dart';
 import '../services/weather_service.dart';
+import '../utils/location_helper.dart';
 
 class WeatherProvider with ChangeNotifier {
   final WeatherService _weatherService = WeatherService();
@@ -13,14 +14,18 @@ class WeatherProvider with ChangeNotifier {
   bool _useFahrenheit = false;
   bool get useFahrenheit => _useFahrenheit;
 
-  // Constructor to initialize the provider and load the unit preference
+  bool _useCurrentLocation = false;
+  bool get useCurrentLocation => _useCurrentLocation;
+
+  // Constructor to initialize the provider and load the unit and location preferences
   WeatherProvider() {
-    _loadUnitPreference();
+    _loadPreferences();
   }
 
-  // Load the unit preference from Preferences
-  Future<void> _loadUnitPreference() async {
+  // Load the unit and location preferences from Preferences
+  Future<void> _loadPreferences() async {
     _useFahrenheit = await Preferences.getUseFahrenheit();
+    _useCurrentLocation = await Preferences.getUseCurrentLocation();
     notifyListeners();
   }
 
@@ -41,6 +46,43 @@ class WeatherProvider with ChangeNotifier {
     _useFahrenheit = fahrenheit;
     _saveUnitPreference();
     notifyListeners();
+  }
+
+  Future<void> setUseCurrentLocation(
+    bool value, {
+    BuildContext? context,
+  }) async {
+    _useCurrentLocation = value;
+    await Preferences.setUseCurrentLocation(value);
+    notifyListeners();
+    if (value) {
+      try {
+        final pos = await LocationHelper.getCurrentPosition();
+        final weather = await _weatherService.fetchWeatherByCoords(
+          pos.latitude,
+          pos.longitude,
+        );
+        await Preferences.setDefaultCity(weather.cityId);
+        await loadWeather(weather.cityId);
+        if (context != null && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Current location set successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context != null && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to get current location: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Weather? get weather => _weather;

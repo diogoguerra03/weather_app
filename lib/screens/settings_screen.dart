@@ -89,6 +89,115 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                'Default Weather Source',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: prov.useCurrentLocation
+                          ? const Color(0xFF5146A6)
+                          : Colors.white12,
+                      borderRadius: BorderRadius.circular(12),
+                      border: prov.useCurrentLocation
+                          ? Border(
+                              left: BorderSide(color: Colors.white, width: 5),
+                            )
+                          : null,
+                    ),
+                    child: RadioListTile<bool>(
+                      value: true,
+                      groupValue: prov.useCurrentLocation,
+                      onChanged: (v) =>
+                          prov.setUseCurrentLocation(true, context: context),
+                      activeColor: Colors.white,
+                      tileColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      title: Row(
+                        children: [
+                          Icon(Icons.my_location, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            'Current Location',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Text(
+                        'Always show weather for your current location.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: !prov.useCurrentLocation
+                          ? const Color(0xFF5146A6)
+                          : Colors.white12,
+                      borderRadius: BorderRadius.circular(12),
+                      border: !prov.useCurrentLocation
+                          ? Border(
+                              left: BorderSide(color: Colors.white, width: 5),
+                            )
+                          : null,
+                    ),
+                    child: RadioListTile<bool>(
+                      value: false,
+                      groupValue: prov.useCurrentLocation,
+                      onChanged: (v) =>
+                          prov.setUseCurrentLocation(false, context: context),
+                      activeColor: Colors.white,
+                      tileColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      title: Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            'Favorite City',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Text(
+                        'Show weather for your selected favorite city.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

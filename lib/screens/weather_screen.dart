@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/weather_provider.dart';
 import '../widgets/clock_widget.dart';
 import '../widgets/weather_display.dart';
 import '../widgets/hourly_forecast.dart';
@@ -12,8 +10,6 @@ class WeatherScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final prov = Provider.of<WeatherProvider>(context);
-
     return Scaffold(
       backgroundColor: const Color(0xFF362A84),
       body: DefaultTabController(
